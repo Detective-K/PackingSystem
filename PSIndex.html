@@ -1,0 +1,1596 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>PackingSystem</title>
+    <link href="css/bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .row
+        {
+            padding-top: 40px;
+        }
+    </style>
+    <link rel="stylesheet" href="style1.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/3.3.3/adapter.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>
+    <script src="instascan.min.js" type="text/javascript"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="app">
+            <div class="sidebar">
+                <div class="row ">
+                    <div class="col-md-3">
+                             <section class="cameras">
+                                  <h2>Cameras</h2>
+                                  <ul>
+                                    <li v-if="cameras.length === 0" class="empty">No cameras found</li>
+                                    <li v-for="camera in cameras">
+                                      <span v-if="camera.id == activeCameraId" :title="formatName(camera.name)" class="active">{{ formatName(camera.name) }}</span>
+                                      <span v-if="camera.id != activeCameraId" :title="formatName(camera.name)">
+                                        <a @click.stop="selectCamera(camera)">{{ formatName(camera.name) }}</a>
+                                      </span>
+                                    </li>
+                                  </ul>
+                                </section>
+                    </div>
+                    <div class="col-md-3">
+                        <section class="scans">
+                          <h2>Scans</h2>
+                          <ul v-if="scans.length === 0">
+                            <li class="empty">No scans yet</li>
+                          </ul>
+                          <transition-group name="scans" tag="ul">
+                            <li v-for="scan in scans" :key="scan.date" :title="scan.content">{{ scan.content }}</li>
+                          </transition-group>
+                        </section>
+                    </div>
+                    <div class="col-md-6">
+
+                            <video id="preview" class="video-back" playsinline></video>
+    
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-md-5 ">
+                <table class="table" id="tblOrg">
+                    <thead>
+                        <tr>
+                            <th scope="col">
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-all " type="checkbox" id="all"
+                                        value="option1" aria-label="..." style="display: none">
+                                </div>
+                            </th>
+                            <th scope="col">
+                                訂單編號
+                            </th>
+                            <th scope="col">
+                                規格
+                            </th>
+                            <th scope="col">
+                                出貨
+                                <br />數量
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl_Org">
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2009250045-1
+                            </td>
+                            <td>
+                                ATB210FC-050
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010010010-2
+                            </td>
+                            <td>
+                                AE120-010
+                            </td>
+                            <td>
+                                64
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010050033-1
+                            </td>
+                            <td>
+                                AHK140-040 (C3=24)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010050033-2
+                            </td>
+                            <td>
+                                AHK140-040 (C3=24)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010080028-7
+                            </td>
+                            <td>
+                                PG2_060-007 (C3=19)
+                            </td>
+                            <td>
+                                4
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010080028-10
+                            </td>
+                            <td>
+                                AF075-004-S1-P2
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010090029-1
+                            </td>
+                            <td>
+                                PG2_060-200 (C3=8)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-1
+                            </td>
+                            <td>
+                                AD090-025-P2
+                            </td>
+                            <td>
+                                60
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-2
+                            </td>
+                            <td>
+                                AE070-010
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-3
+                            </td>
+                            <td>
+                                AER120-007
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-4
+                            </td>
+                            <td>
+                                AE070-010
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-5
+                            </td>
+                            <td>
+                                AE090-010
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-6
+                            </td>
+                            <td>
+                                PG2R060-004 (C3=19)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-7
+                            </td>
+                            <td>
+                                PG2_080-010 (C3=19)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-8
+                            </td>
+                            <td>
+                                AFR100-005-S2-P2
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-9
+                            </td>
+                            <td>
+                                AF075-003-S2-P2
+                            </td>
+                            <td>
+                                6
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-10
+                            </td>
+                            <td>
+                                AD140-061-P0
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-11
+                            </td>
+                            <td>
+                                ABR180-050-S2-P2
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-12
+                            </td>
+                            <td>
+                                ABR142-020-S2-P2
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-13
+                            </td>
+                            <td>
+                                AT090FC-020
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-16
+                            </td>
+                            <td>
+                                PE2R090-005 (C3=14)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130045-8
+                            </td>
+                            <td>
+                                KF075-010-S4 (C3=14)
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-1
+                            </td>
+                            <td>
+                                AB042-010-S2-P2
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-2
+                            </td>
+                            <td>
+                                PE2_050-010 (C3=8)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-3
+                            </td>
+                            <td>
+                                PL070-020 (C3=16)
+                            </td>
+                            <td>
+                                4
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-4
+                            </td>
+                            <td>
+                                PG2_080-004 (C3=24)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-5
+                            </td>
+                            <td>
+                                PA2_060-020-S2 (C3=14)
+                            </td>
+                            <td>
+                                3
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-7
+                            </td>
+                            <td>
+                                AF140-003-S1-P2
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-8
+                            </td>
+                            <td>
+                                KF100-010-S4 (C3=24)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-9
+                            </td>
+                            <td>
+                                AF100-010-S2-P1
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-10
+                            </td>
+                            <td>
+                                AE090-100
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-11
+                            </td>
+                            <td>
+                                AE090-010
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-12
+                            </td>
+                            <td>
+                                PG2_080-015 (C3=19)
+                            </td>
+                            <td>
+                                12
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-13
+                            </td>
+                            <td>
+                                PE2_070-005 (C3=19)
+                            </td>
+                            <td>
+                                12
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-14
+                            </td>
+                            <td>
+                                PE2R070-020 (C3=14)
+                            </td>
+                            <td>
+                                12
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-15
+                            </td>
+                            <td>
+                                AE090-009
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-16
+                            </td>
+                            <td>
+                                AE120-007
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-17
+                            </td>
+                            <td>
+                                AF060A-035-S2-P2
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-18
+                            </td>
+                            <td>
+                                ABR060-012-S2-P2
+                            </td>
+                            <td>
+                                6
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-19
+                            </td>
+                            <td>
+                                PE2_090-020 (C3=14)
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-20
+                            </td>
+                            <td>
+                                PE2_050-005 (C3=11)
+                            </td>
+                            <td>
+                                4
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170002-1
+                            </td>
+                            <td>
+                                AH200-100 (C3=24)
+                            </td>
+                            <td>
+                                3
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-3
+                            </td>
+                            <td>
+                                PE2_070-040 (C3=9)
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-4
+                            </td>
+                            <td>
+                                AB115-030-S2-P2
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-5
+                            </td>
+                            <td>
+                                PE2_070-003 (C3=11)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-6
+                            </td>
+                            <td>
+                                PE2_070-004 (C3=14)
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-7
+                            </td>
+                            <td>
+                                PE2_090-010 (C3=19)
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-8
+                            </td>
+                            <td>
+                                PG2_040-003 (C3=8)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-9
+                            </td>
+                            <td>
+                                PG2_060-003 (C3=14)
+                            </td>
+                            <td>
+                                3
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-10
+                            </td>
+                            <td>
+                                PG2_060-010 (C3=14)
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-11
+                            </td>
+                            <td>
+                                PG2_080-010 (C3=14)
+                            </td>
+                            <td>
+                                6
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-12
+                            </td>
+                            <td>
+                                PG2R040-005 (C3=8)
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-13
+                            </td>
+                            <td>
+                                PA2_042-007-S1 (C3=9)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-14
+                            </td>
+                            <td>
+                                PA2_042-010-S2 (C3=8)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-15
+                            </td>
+                            <td>
+                                PG2_040-010 (C3=8)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-16
+                            </td>
+                            <td>
+                                AE070-005
+                            </td>
+                            <td>
+                                20
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-18
+                            </td>
+                            <td>
+                                AE235-015
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-19
+                            </td>
+                            <td>
+                                AE155-020
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010220043-1
+                            </td>
+                            <td>
+                                PE2_070-010 (C3=11)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010220043-4
+                            </td>
+                            <td>
+                                AE070-010
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010220043-5
+                            </td>
+                            <td>
+                                AE070-005
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010220043-6
+                            </td>
+                            <td>
+                                ATB110FH-035
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010220043-9
+                            </td>
+                            <td>
+                                AB142-020-S2-P2
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010230056-1
+                            </td>
+                            <td>
+                                PA2_060-005-S2 (C3=8)
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010230056-2
+                            </td>
+                            <td>
+                                AE120-007
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010230056-3
+                            </td>
+                            <td>
+                                AE120-010
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010230056-4
+                            </td>
+                            <td>
+                                ATB110FH-004
+                            </td>
+                            <td>
+                                6
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010230056-5
+                            </td>
+                            <td>
+                                PA2_090-007-S2 (C3=19)
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010230057-1
+                            </td>
+                            <td>
+                                AE090-007
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010170001-6
+                            </td>
+                            <td>
+                                AD-P140-M196-1
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010230057-2
+                            </td>
+                            <td>
+                                FP-A-W130-06
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130045-9
+                            </td>
+                            <td>
+                                SD-d24xdw20(SUS)
+                            </td>
+                            <td>
+                                2
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-14
+                            </td>
+                            <td>
+                                PNG-D30-STRAIGHT-M3-36T
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-17
+                            </td>
+                            <td>
+                                PNG-D22-STRAIGHT-M2-32T
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-1
+                            </td>
+                            <td>
+                                PNG-F30-M3-20T
+                            </td>
+                            <td>
+                                4
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010220043-2
+                            </td>
+                            <td>
+                                RC6-M2-ST-T320-L2010.619
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010220043-7
+                            </td>
+                            <td>
+                                PNG-G33-M3-20T
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-15
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010130044-18
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010210001-2
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010220043-3
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010220043-8
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="form-check">
+                                    <input class="form-check-input position-static select-item" type="checkbox" value="option1"
+                                        aria-label="...">
+                                </div>
+                            </td>
+                            <td>
+                                2210-2010260006-1
+                            </td>
+                            <td>
+                                L2200xW140xH110
+                            </td>
+                            <td>
+                                1
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-2">
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <input class="form-control" type="text" placeholder="顆數" id="txt_Num" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <input class="form-control" type="text" placeholder="箱號" id="txt_Box" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <input type="button" class="btn btn-info" id="btn_send" value="送出" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <table class="table" style="display: none" id="tblNew">
+                    <thead>
+                        <tr>
+                            <th scope="col">
+                                No.
+                            </th>
+                            <th scope="col">
+                                訂單編號
+                            </th>
+                            <th scope="col">
+                                規格
+                            </th>
+                            <th scope="col">
+                                出貨數量
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl_New">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery-1.9.1.min.js" type="text/javascript"></script>
+
+    <script src="js/bootstrap4.min.js" type="text/javascript"></script>
+
+    <script src="js/popper.js" type="text/javascript"></script>
+
+    <script src="app.js" type="text/javascript"></script>
+    <script type="text/javascript"> 
+    
+    $(function() {
+    $("input.select-all").click(function() {
+        var checked = this.checked;
+        $("input.select-item").each(function(index, item) {
+            item.checked = checked;
+        });
+    });
+    $("#btn_send").click(function() {
+        let errStr;
+        errStr = "";
+        errStr = errorFun().toString().trim() ;
+        let rowIndex = 0;
+        if (errStr == "") {
+            $("#tbl_Org tr").each(function(key,
+                val) {
+                if (val.firstElementChild.firstElementChild.firstElementChild.checked) {
+                    let str_table;
+                    $("#tblNew").css("display", "block");
+                    let boxNum = parseInt(txt_Box.value);
+                    const maxNum = Math.ceil(parseInt(val.childNodes[7].innerText) / parseInt(txt_Num.value));
+                    const remainder = parseInt(val.childNodes[7].innerText) % parseInt(txt_Num.value);
+                    for (let i = 1; i <= maxNum; i++) {
+                        str_table = " <tr> ";
+                        str_table += " <td>" + boxNum + " </td>"; 
+                        str_table += " <td> " + val.childNodes[3].innerText + "</td > ";
+                        str_table += " <td> " + val.childNodes[5].innerText + "</td>";
+                        if (remainder !=
+                            0 && (i == maxNum)) {
+                            str_table += " <td> " + remainder + "</td>";
+                        } else {
+                            str_table+= " <td> " + txt_Num.value + "</td>";
+                        }
+                        str_table += " </tr> ";
+                        $("#tbl_New").append(str_table);
+                        boxNum++;
+                    }
+                    $("#tbl_Org tr")[rowIndex].remove();
+                    rowIndex--;
+                }
+                rowIndex++;
+            });
+        } else {
+            alert(errStr);
+        }
+        if ($("#tbl_Org tr").length == 0) {
+            $("#tblOrg").css("display", "none");
+        }
+    });
+    const errorFun = () => {
+        let errStr = "";
+        if (txt_Num.value.toString().trim() == '' || txt_Box.value.toString().trim() == '') {
+            errStr = "箱號 或 顆數 不能為空白!";
+        }
+        return errStr;
+    };
+});
+    </script>
+
+</body>
+</html>
